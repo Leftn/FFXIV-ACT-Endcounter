@@ -1,33 +1,7 @@
-# DalamudPluginProjectTemplate
-An opinionated Visual Studio project template for Dalamud plugins, with attributes for more maintainable command setup and teardown.
+# FFXIV Endcounter
 
-## Attributes
-This template includes an attribute framework reminiscent of [Discord.Net](https://github.com/discord-net/Discord.Net).
+ACT cannot directly see when combat has ended/started in FFXIV. To alleviate this, users can manually end an encounter with a macro which simply echos the word 'end' into chat
 
-```csharp
-[Command("/example1")]
-[Aliases("/ex1", "/e1")]
-[HelpMessage("Example help message.")]
-public void ExampleCommand1(string command, string args)
-{
-    var chat = this.pluginInterface.Framework.Gui.Chat;
-    var world = this.pluginInterface.ClientState.LocalPlayer.CurrentWorld.GameData;
-    chat.Print($"Hello {world.Name}!");
-    PluginLog.Log("Message sent successfully.");
-}
+This plugin simply automates this process and will send 'end' into chat whenever combat has ended.
 
-[Command("/example2")]
-[DoNotShowInHelp]
-public void ExampleCommand2(string command, string args)
-{
-    // do nothing
-}
-```
-
-This automatically registers and unregisters the methods that they're attached to on initialization and dispose.
-
-## GitHub Actions
-Running the shell script `DownloadGithubActions.sh` will download some useful GitHub actions for you. You can also delete this file if you have no need for it.
-
-### Current Actions
-  * dotnet build/test
+There is also an option to enable a reminder to clear all encounter data when you enter a duty.
