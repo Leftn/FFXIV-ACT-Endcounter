@@ -98,6 +98,7 @@ namespace Endcounter
                     if (ImGui.Button("Yes"))
                     {
                         this.chat.PrintChat(ClearACTChatEntry);
+                        this.ReminderVisible = false;
                     }
                     ImGui.SameLine();
                     if (ImGui.Button("No"))
