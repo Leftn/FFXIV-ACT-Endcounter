@@ -1,10 +1,10 @@
-﻿using Dalamud.Game.ClientState;
-using Dalamud.Game.Internal.Gui;
-using Dalamud.Game.Text;
+﻿using Dalamud.Game.Text;
 using Dalamud.Plugin;
 using ImGuiNET;
 using System.Numerics;
-using System.Text;
+using Dalamud.Game.Gui;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState;
 
 namespace Endcounter
 {
@@ -21,9 +21,10 @@ namespace Endcounter
             set { this.reminderVisible = value; }
         }
 
-        public DalamudPluginInterface pi;
-        public Configuration config;
+        private Configuration config;
+        private ClientState clientState;
         private ChatGui chat;
+        private Condition conditions;
 
         private bool Hide;
         private bool Enabled;
@@ -40,32 +41,33 @@ namespace Endcounter
 
         private readonly XivChatEntry EndACTChatEntry = new XivChatEntry()
         {
-            MessageBytes = Encoding.ASCII.GetBytes("end"),
+            Message = "end",
             Type = XivChatType.Echo
         };
 
         private readonly XivChatEntry ClearACTChatEntry = new XivChatEntry()
         {
-            MessageBytes = Encoding.ASCII.GetBytes("clear"),
+            Message = "clear",
             Type = XivChatType.Echo
         };
 
-        public PluginUI(DalamudPluginInterface pi, Configuration config)
+        public PluginUI(Condition condition, Configuration config, ChatGui chat, ClientState client)
         {
-            this.pi = pi;
             this.config = config;
             this.Enabled = config.Enabled;
             this.Hide = config.ReminderHide;
             this.EndEndOfCombat = config.EndEndOfCombat;
             this.EndStartOfCombat = config.EndStartOfCombat;
-            this.chat = pi.Framework.Gui.Chat;
+            this.chat = chat;
+            this.clientState = client;
+            this.conditions = condition;
         }
 
         public void Draw()
         {
             if (SettingsVisible)
             {
-                ImGui.SetNextWindowSizeConstraints(new Vector2(340, 140), new Vector2(340, 140));
+                ImGui.SetNextWindowSizeConstraints(new Vector2(380, 140), new Vector2(380, 140));
                 if (ImGui.Begin("Endcounter Settings", ref this.settingsVisible, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.NoResize))
                 {
                     if (ImGui.Checkbox("Enabled", ref this.Enabled))
@@ -73,7 +75,7 @@ namespace Endcounter
                         this.config.Enabled = this.Enabled;
                     }
                     ImGui.SameLine();
-                    if (ImGui.Checkbox("Hide Duty reset reminder", ref this.Hide))
+                    if (ImGui.Checkbox("Disable reset reminder when entering a duty", ref this.Hide))
                     {
                         this.config.ReminderHide = this.Hide;
                     }
@@ -118,16 +120,17 @@ namespace Endcounter
             if (this.config.Enabled)
             {
                 this.InCombatThen = this.InCombatNow;
-                this.InCombatNow = this.pi.ClientState.Condition[ConditionFlag.InCombat];
+                this.InCombatNow = this.conditions[ConditionFlag.InCombat];
+                
 
                 this.InDutyThen = this.InDutyNow;
-                this.InDutyNow = this.pi.ClientState.Condition[ConditionFlag.BoundByDuty56];
+                this.InDutyNow = this.conditions[ConditionFlag.BoundByDuty56];
 
                 if (this.InDutyNow && !this.InDutyThen && !this.Hide)
                 {
                     this.ReminderVisible = true;
                 }
-                
+
                 if (!this.InCombatThen && this.InCombatNow && this.config.EndStartOfCombat)
                 {
                     this.chat.PrintChat(EndACTChatEntry);

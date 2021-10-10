@@ -1,6 +1,6 @@
-﻿using Dalamud.Game.Command;
+﻿using ACT_Endcounter.Attributes;
+using Dalamud.Game.Command;
 using Dalamud.Plugin;
-using Endcounter.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +9,17 @@ using static Dalamud.Game.Command.CommandInfo;
 
 // ReSharper disable ForCanBeConvertedToForeach
 
-namespace Endcounter
+namespace ACT_Endcounter
 {
     public class PluginCommandManager<THost> : IDisposable
     {
-        private readonly DalamudPluginInterface pluginInterface;
+        private readonly CommandManager commandManager;
         private readonly (string, CommandInfo)[] pluginCommands;
         private readonly THost host;
 
-        public PluginCommandManager(THost host, DalamudPluginInterface pluginInterface)
+        public PluginCommandManager(THost host, CommandManager commandManager)
         {
-            this.pluginInterface = pluginInterface;
+            this.commandManager = commandManager;
             this.host = host;
 
             this.pluginCommands = host.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance)
@@ -39,7 +39,7 @@ namespace Endcounter
             for (var i = 0; i < this.pluginCommands.Length; i++)
             {
                 var (command, commandInfo) = this.pluginCommands[i];
-                this.pluginInterface.CommandManager.AddHandler(command, commandInfo);
+                this.commandManager.AddHandler(command, commandInfo);
             }
         }
 
@@ -48,7 +48,7 @@ namespace Endcounter
             for (var i = 0; i < this.pluginCommands.Length; i++)
             {
                 var (command, _) = this.pluginCommands[i];
-                this.pluginInterface.CommandManager.RemoveHandler(command);
+                this.commandManager.RemoveHandler(command);
             }
         }
 
@@ -84,6 +84,7 @@ namespace Endcounter
         public void Dispose()
         {
             RemoveCommandHandlers();
+            GC.SuppressFinalize(this);
         }
     }
 }

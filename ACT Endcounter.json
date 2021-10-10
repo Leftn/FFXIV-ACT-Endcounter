@@ -1,0 +1,7 @@
+﻿{
+  "Name": "Endcounter",
+  "Author": "Left",
+  "Description": "Pairs with ACT, automatically invokes 'end' at the end of combat",
+  "RepoUrl": "https://github.com/Leftn/FFXIV-ACT-Endcounter",
+  "Tags": ["Other"]
+}

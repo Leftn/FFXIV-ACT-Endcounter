@@ -10,7 +10,6 @@ namespace Endcounter
         public bool Enabled { get; set; } = true;
         public bool EndStartOfCombat { get; set; } = false;
         public bool EndEndOfCombat { get; set; } = true;
-
         public bool ReminderHide { get; set; } = false;
 
         // Add any other properties or methods here.

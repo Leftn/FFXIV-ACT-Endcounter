@@ -1,35 +1,58 @@
-﻿using Dalamud.Game.ClientState;
+﻿using ACT_Endcounter.Attributes;
+using Dalamud.Game.ClientState;
+using Dalamud.Game.Command;
+using Dalamud.Game.Gui;
+using Dalamud.IoC;
+using Dalamud.Logging;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin;
-using Endcounter.Attributes;
+using Endcounter;
 using System;
 
-namespace Endcounter
+namespace ACT_Endcounter
 {
     public class Plugin : IDalamudPlugin
     {
-        private DalamudPluginInterface pluginInterface;
-        private PluginCommandManager<Plugin> commandManager;
-        private Configuration config;
-        private PluginUI ui;
+        [PluginService]
+        [RequiredVersion("1.0")]
+        private DalamudPluginInterface PluginInterface { get; init; }
 
-        public string Name => "Endcounter";
+        [PluginService]
+        [RequiredVersion("1.0")]
+        private CommandManager Commands { get; init; }
 
-        public void Initialize(DalamudPluginInterface pluginInterface)
+        [PluginService]
+        [RequiredVersion("1.0")]
+        private ChatGui Chat { get; init; }
+
+        [PluginService]
+        [RequiredVersion("1.0")]
+        private ClientState ClientState { get; init; }
+
+        [PluginService]
+        [RequiredVersion("1.0")]
+        private Condition Conditions { get; init; }
+
+        private readonly PluginCommandManager<Plugin> commandManager;
+        private readonly Configuration config;
+        private readonly PluginUI ui;
+
+        public string Name => "Your Plugin's Display Name";
+
+        public Plugin()
         {
-            this.pluginInterface = pluginInterface;
+            this.config = (Configuration)PluginInterface.GetPluginConfig() ?? new Configuration();
+            this.config.Initialize(PluginInterface);
 
-            this.config = (Configuration)this.pluginInterface.GetPluginConfig() ?? new Configuration();
-            this.config.Initialize(this.pluginInterface);
+            this.ui = new PluginUI(Conditions, this.config, Chat, ClientState);
+            PluginInterface.UiBuilder.Draw += this.ui.Draw;
 
-            this.ui = new PluginUI(this.pluginInterface, this.config);
-            this.pluginInterface.UiBuilder.OnBuildUi += this.ui.Draw;
-
-            this.commandManager = new PluginCommandManager<Plugin>(this, this.pluginInterface);
+            this.commandManager = new PluginCommandManager<Plugin>(this, Commands);
         }
 
-        [Command("/ectoggle")]
-        [HelpMessage("Toggles endcounter on/off")]
-        public void ECToggle(string command, string args)
+        [Command("/ec")]
+        [HelpMessage("Toggle Endcounter settings menu")]
+        public void EcToggle(string command, string args)
         {
             // You may want to assign these references to private variables for convenience.
             // Keep in mind that the local player does not exist until after logging in.
@@ -43,11 +66,9 @@ namespace Endcounter
 
             this.commandManager.Dispose();
 
-            this.pluginInterface.SavePluginConfig(this.config);
+            PluginInterface.SavePluginConfig(this.config);
 
-            this.pluginInterface.UiBuilder.OnBuildUi -= this.ui.Draw;
-
-            this.pluginInterface.Dispose();
+            PluginInterface.UiBuilder.Draw -= this.ui.Draw;
         }
 
         public void Dispose()
