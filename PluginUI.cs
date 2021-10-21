@@ -1,10 +1,8 @@
 ﻿using Dalamud.Game.Text;
-using Dalamud.Plugin;
 using ImGuiNET;
 using System.Numerics;
 using Dalamud.Game.Gui;
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState;
 
 namespace Endcounter
 {
@@ -22,7 +20,6 @@ namespace Endcounter
         }
 
         private Configuration config;
-        private ClientState clientState;
         private ChatGui chat;
         private Condition conditions;
 
@@ -51,7 +48,7 @@ namespace Endcounter
             Type = XivChatType.Echo
         };
 
-        public PluginUI(Condition condition, Configuration config, ChatGui chat, ClientState client)
+        public PluginUI(Condition condition, Configuration config, ChatGui chat)
         {
             this.config = config;
             this.Enabled = config.Enabled;
@@ -59,7 +56,6 @@ namespace Endcounter
             this.EndEndOfCombat = config.EndEndOfCombat;
             this.EndStartOfCombat = config.EndStartOfCombat;
             this.chat = chat;
-            this.clientState = client;
             this.conditions = condition;
         }
 

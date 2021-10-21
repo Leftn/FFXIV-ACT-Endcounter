@@ -1,9 +1,7 @@
 ﻿using ACT_Endcounter.Attributes;
-using Dalamud.Game.ClientState;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
 using Dalamud.IoC;
-using Dalamud.Logging;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Plugin;
 using Endcounter;
@@ -27,24 +25,20 @@ namespace ACT_Endcounter
 
         [PluginService]
         [RequiredVersion("1.0")]
-        private ClientState ClientState { get; init; }
-
-        [PluginService]
-        [RequiredVersion("1.0")]
         private Condition Conditions { get; init; }
 
         private readonly PluginCommandManager<Plugin> commandManager;
         private readonly Configuration config;
         private readonly PluginUI ui;
 
-        public string Name => "Your Plugin's Display Name";
+        public string Name => "ACTEndcounter";
 
         public Plugin()
         {
             this.config = (Configuration)PluginInterface.GetPluginConfig() ?? new Configuration();
             this.config.Initialize(PluginInterface);
 
-            this.ui = new PluginUI(Conditions, this.config, Chat, ClientState);
+            this.ui = new PluginUI(Conditions, this.config, Chat);
             PluginInterface.UiBuilder.Draw += this.ui.Draw;
 
             this.commandManager = new PluginCommandManager<Plugin>(this, Commands);
